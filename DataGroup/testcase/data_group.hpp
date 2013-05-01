@@ -59,11 +59,11 @@ class DATA_GROUP
 public:
     DATA_GROUP():set_count(MAX_PARA_NUM+1),get_count(0),seq_num(0),seq_idx(0),can_set(true){}
     ~DATA_GROUP(){ clear(); }
-    template <class T> DATA_SEQ<T> & operator[] (T& v)
+    template <class T> DATA_SEQ<T> & operator[] (T&)
     {
 	if(!can_set)
 	{
-	    SEQ_BASE *exist_seq = static_cast<DATA_SEQ<T> *>(_data[seq_idx]);
+	    SEQ_BASE *exist_seq = _data[seq_idx];
 	    setCount(exist_seq->count());
 	    //cout << "exist_seq_count: " << exist_seq->count() << endl;
 	    seq_idx = (seq_idx + 1) % seq_num;
