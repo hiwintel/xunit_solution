@@ -29,6 +29,8 @@ public:
     T operator()(T v1, T v2, T v3, T v4) { return _(v1)(v2,v3,v4); }
     T operator()(T v1, T v2, T v3, T v4, T v5) { return _(v1)(v2,v3,v4,v5); }
     T operator()(T v1, T v2, T v3, T v4, T v5, T v6) { return _(v1)(v2,v3,v4,v5,v6); }
+    //Now support 6 para...could add....
+    //T operator() ...
     DATA_SEQ():_values(0){}
     ~DATA_SEQ(){ clear(); }
 protected:
@@ -37,6 +39,7 @@ private:
     T ret()
     {
 	can_set = false;
+	//if get value num si more than set_count, return the last value
 	if(get_count < set_count)
 	    return _values[get_count++];
 	else
@@ -61,20 +64,24 @@ public:
     ~DATA_GROUP(){ clear(); }
     template <class T> DATA_SEQ<T> & operator[] (T&)
     {
-	if(!can_set)
+	DATA_SEQ<T> *seq;
+	if(can_set)
 	{
-	    SEQ_BASE *exist_seq = _data[seq_idx];
-	    setCount(exist_seq->count());
+	    //at first loop, create new DATA_SEQ
+	    seq = new DATA_SEQ<T>;
+	    _data.push_back(seq);
+	    seq_num++;
+	    //cout << "seq_num: " << seq_num << endl;
+	}
+	else
+	{
+	    //at other loop, get exist seq
+	    seq = static_cast<DATA_SEQ<T> *>(_data[seq_idx]);
+	    setCount(seq->count());
 	    //cout << "exist_seq_count: " << exist_seq->count() << endl;
 	    seq_idx = (seq_idx + 1) % seq_num;
-	    return static_cast<DATA_SEQ<T>&>(*exist_seq);
 	}
-
-	SEQ_BASE *seq = new DATA_SEQ<T>;
-	_data.push_back(seq);
-	seq_num++;
-	//cout << "seq_num: " << seq_num << endl;
-	return static_cast<DATA_SEQ<T>&>(*seq);
+	return *seq;
     }
     bool getting()
     {
@@ -88,6 +95,7 @@ private:
     {
 	if(count > MAX_PARA_NUM)
 	    return;
+	//first set or set the max value
 	if(set_count > MAX_PARA_NUM || count > set_count)
 	    set_count = count;
     }
